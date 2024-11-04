@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>スタイリッシュ TODOリスト</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #2d3436;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+        }
+
+        h1 {
+            text-align: center;
+            color: #2d3436;
+            font-size: 2rem;
+            margin-bottom: 2rem;
+            font-weight: 600;
+        }
+
+        .input-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        input, select, button {
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #6c5ce7;
+            box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.1);
+        }
+
+        button {
+            background: #6c5ce7;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        button:hover {
+            background: #5b4cc4;
+            transform: translateY(-1px);
+        }
+
+        .todo-item {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            margin: 0.5rem 0;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+            border-left: 5px solid #ddd;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .todo-item.priority-high {
+            border-left-color: #ff7675;
+        }
+
+        .todo-item.priority-medium {
+            border-left-color: #ffd93d;
+        }
+
+        .todo-item.priority-low {
+            border-left-color: #55efc4;
+        }
+
+        .checkbox-wrapper {
+            margin-right: 1rem;
+        }
+
+        .custom-checkbox {
+            width: 24px;
+            height: 24px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            display: inline-block;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .custom-checkbox::after {
+            content: '';
+            width: 6px;
+            height: 12px;
+            border: solid white;
+            border-width: 0 2px 2px 0;
+            position: absolute;
+            top: 45%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(45deg) scale(0);
+            transition: all 0.2s ease;
+        }
+
+        input[type="checkbox"] {
+            display: none;
+        }
+
+        input[type="checkbox"]:checked + .custom-checkbox {
+            background: #6c5ce7;
+            border-color: #6c5ce7;
+        }
+
+        input[type="checkbox"]:checked + .custom-checkbox::after {
+            transform: translate(-50%, -50%) rotate(45deg) scale(1);
+        }
+
+        .todo-content {
+            flex-grow: 1;
+            margin-right: 1rem;
+        }
+
+        .todo-text {
+            font-size: 1rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .todo-meta {
+            font-size: 0.85rem;
+            color: #636e72;
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .tag {
+            background: #f0f2f5;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+        }
+
+        .due-date {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 2px 8px;
+            border-radius: 12px;
+            background: #e8f5e9;
+            color: #2d3436;
+        }
+
+        .due-date.overdue {
+            background: #ffe0e0;
+            color: #d63031;
+            font-weight: 500;
+        }
+
+        .due-date.today {
+            background: #fff3e0;
+            color: #f39c12;
+            font-weight: 500;
+        }
+
+        .todo-item.completed {
+            opacity: 0.7;
+        }
+
+        .todo-item.completed .todo-text {
+            text-decoration: line-through;
+            color: #a4b0be;
+        }
+
+        .todo-item.completed::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.2) 100%);
+            pointer-events: none;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .edit-btn, .delete-btn {
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: normal;
+        }
+
+        .edit-btn {
+            background: #74b9ff;
+        }
+
+        .edit-btn:hover {
+            background: #0984e3;
+        }
+
+        .delete-btn {
+            background: #ff7675;
+        }
+
+        .delete-btn:hover {
+            background: #d63031;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(-20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .todo-item {
+            animation: slideIn 0.3s ease;
+        }
+
+        .completed {
+            animation: complete 0.5s ease;
+        }
+
+        @keyframes complete {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(0.95);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>TODOリスト</h1>
+        
+        <div class="input-section">
+            <input type="text" id="todoInput" placeholder="新しいタスクを入力">
+            <select id="priorityInput">
+                <option value="low">優先度: 低</option>
+                <option value="medium">優先度: 中</option>
+                <option value="high">優先度: 高</option>
+            </select>
+            <input type="date" id="dateInput">
+            <button onclick="addTodo()">追加</button>
+        </div>
+
+        <div id="todoList"></div>
+    </div>
+
+    <script>
+        let todos = [];
+
+        function addTodo() {
+            const input = document.getElementById('todoInput');
+            const priority = document.getElementById('priorityInput').value;
+            const dueDate = document.getElementById('dateInput').value;
+            const text = input.value.trim();
+            
+            if (text) {
+                todos.push({
+                    text: text,
+                    priority: priority,
+                    dueDate: dueDate,
+                    completed: false,
+                    id: Date.now()
+                });
+                
+                input.value = '';
+                document.getElementById('dateInput').value = '';
+                renderTodos();
+                saveTodos();
+            }
+        }
+
+        function toggleTodo(id) {
+            const todo = todos.find(t => t.id === id);
+            if (todo) {
+                todo.completed = !todo.completed;
+                renderTodos();
+                saveTodos();
+            }
+        }
+
+        function deleteTodo(id) {
+            todos = todos.filter(t => t.id !== id);
+            renderTodos();
+            saveTodos();
+        }
+
+        function formatDate(dateString) {
+            if (!dateString) return '';
+            const date = new Date(dateString);
+            return new Intl.DateTimeFormat('ja-JP', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric'
+            }).format(date);
+        }
+
+        function getDueDateStatus(dateString) {
+            if (!dateString) return '';
+            
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const dueDate = new Date(dateString);
+            dueDate.setHours(0, 0, 0, 0);
+            const tomorrow = new Date(today);
+            tomorrow.setDate(tomorrow.getDate() + 1);
+
+            if (dueDate < today) return 'overdue';
+            if (dueDate.getTime() === today.getTime()) return 'today';
+            return '';
+        }
+
+        function getDueDateText(status) {
+            if (status === 'overdue') return '期限切れ';
+            if (status === 'today') return '今日まで';
+            return '期限';
+        }
+
+        function renderTodos() {
+            const todoList = document.getElementById('todoList');
+            todoList.innerHTML = '';
+            
+            // 期限日でソート
+            const sortedTodos = [...todos].sort((a, b) => {
+                if (!a.dueDate && !b.dueDate) return 0;
+                if (!a.dueDate) return 1;
+                if (!b.dueDate) return -1;
+                return new Date(a.dueDate) - new Date(b.dueDate);
+            });
+
+            sortedTodos.forEach(todo => {
+                const dueDateStatus = getDueDateStatus(todo.dueDate);
+                
+                const todoItem = document.createElement('div');
+                todoItem.className = `todo-item priority-${todo.priority} ${todo.completed ? 'completed' : ''}`;
+                
+                todoItem.innerHTML = `
+                    <div class="checkbox-wrapper">
+                        <input type="checkbox" id="todo-${todo.id}" 
+                            ${todo.completed ? 'checked' : ''} 
+                            onchange="toggleTodo(${todo.id})">
+                        <label class="custom-checkbox" for="todo-${todo.id}"></label>
+                    </div>
+                    <div class="todo-content">
+                        <div class="todo-text">${todo.text}</div>
+                        <div class="todo-meta">
+                            <span class="tag">${getPriorityText(todo.priority)}</span>
+                            ${todo.dueDate ? `
+                                <span class="due-date ${dueDateStatus}">
+                                    ${getDueDateText(dueDateStatus)}: ${formatDate(todo.dueDate)}
+                                </span>
+                            ` : ''}
+                        </div>
+                    </div>
+                    <div class="action-buttons">
+                        <button class="delete-btn" onclick="deleteTodo(${todo.id})">削除</button>
+                    </div>
+                `;
+                
+                todoList.appendChild(todoItem);
+            });
+        }
+
+        function getPriorityText(priority) {
+            const texts = {
+                high: '優先度: 高',
+                medium: '優先度: 中',
+                low: '優先度: 低'
+            };
+            return texts[priority] || priority;
+        }
+
+        function saveTodos() {
+            localStorage.setItem('todos', JSON.stringify(todos));
+        }
+
+        function loadTodos() {
+            const saved = localStorage.getItem('todos');
+            if (saved) {
+                todos = JSON.parse(saved);
+                renderTodos();
+            }
+        }
+
+        document.getElementById('todoInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                addTodo();
+            }
+        });
+
+        loadTodos();
+    </script>
+</body>
+</html>
